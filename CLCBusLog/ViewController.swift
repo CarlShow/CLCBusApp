@@ -12,6 +12,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var busView: UITableView!
     @IBOutlet weak var updateButton: UIButton!
     @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var bumpView: UIView!
     static var mid = 0
     static var busBuilder = [(busTendancy, String, busTendancy, String)]()
     var canUpdate = true
@@ -98,37 +99,24 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     @IBAction func update(_ sender: Any)
     {
-        if !canUpdate
+        if canUpdate == true
         {
-            let tempNudge = updateButton.center
-            print(updateButton.center)
-            updateButton.center.x += CGFloat(Int.random(in: -20...20))
-            updateButton.center.y += CGFloat(Int.random(in: -20...20))
-            print(updateButton.center)
-            UIView.animate(withDuration: 0.1, animations: {
-                self.updateButton.center = tempNudge
-            })
-        }
-        else
-        {
-            fetch()
-            updateButton.backgroundColor = #colorLiteral(red: 0.100215964, green: 0.02514740638, blue: 0.02612011321, alpha: 0.1964783188)
-            updateButton.titleLabel?.text = "..."
             canUpdate = false
-            UIView.animate(withDuration: 10, animations: { [self] in
-                updateButton.backgroundColor = #colorLiteral(red: 0.009437207133, green: 0.03562513739, blue: 0.1909909546, alpha: 0.4963814196)
-            }, completion: { [self] _ in
-                UIView.animate(withDuration: 0.2, animations: {
-                    self.updateButton.backgroundColor = #colorLiteral(red: 0, green: 0.4784313725, blue: 1, alpha: 1)
-                })
-                updateButton.titleLabel?.text = "Update"
-                canUpdate = true
-            })
+            updateButton.backgroundColor = #colorLiteral(red: 0.1420087814, green: 0.02641401254, blue: 0.02643535472, alpha: 0.2024890988)
+            UIView.animate(withDuration: 10.0)
+            { [self] in
+                updateButton.backgroundColor = #colorLiteral(red: 0.03013178147, green: 0.1812332869, blue: 0.3823508322, alpha: 0.3520772771)
+            } completion:
+            { [self] _ in
+                UIView.animate(withDuration: 0.2)
+                { [self] in
+                    updateButton.backgroundColor = UIColor.systemBlue
+                } completion: { [self] _ in
+                    canUpdate = true
+                }
+                fetch()
+            }
         }
-    }
-    func updateApparatus()
-    {
-        
     }
     func fetch()
     {
@@ -221,6 +209,17 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 }
             }
             self.busView.reloadData()
+        }
+    }
+}
+extension UIView
+{
+    var absolutePosition: CGPoint
+    {
+        var compiledPosition = self.center
+        while true
+        {
+            
         }
     }
 }

@@ -6,6 +6,7 @@ class customCell: UITableViewCell
     @IBOutlet weak var busSlotB: UIView!
     @IBOutlet weak var busNameA: UILabel!
     @IBOutlet weak var busNameB: UILabel!
+    @IBOutlet weak var stacker: UIStackView!
     var pointer = 0
 }
 enum busTendancy
