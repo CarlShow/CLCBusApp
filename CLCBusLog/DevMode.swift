@@ -68,6 +68,8 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
             case _:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "busLane") as! customCell
                 cell.layer.cornerRadius = 20
+                cell.busSlotA.layer.cornerRadius = 20
+                cell.busSlotB.layer.cornerRadius = 20
                 cell.pointer = indexPath.row
                 var cur = (busTendancy.Null, "", busTendancy.Null, "")
                 if indexPath.row < ViewController.mid + 1
@@ -232,19 +234,63 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                                 ViewController.busBuilder[target.0].0 = tenacity.0
                                 ViewController.busBuilder[target.0].1 = tenacity.1
                             }
+                            var ySmidge = 0.0
+                            if y.pointer > ViewController.mid
+                            {
+                                ySmidge = busView.frame.minY - busView.bounds.minY + y.stacker.frame.minY + 12
+                            }
+                            else
+                            {
+                                ySmidge = busView.frame.minY - busView.bounds.minY + y.stacker.frame.minY + y.busSlotA.frame.height
+                            }
+                            let yMod = ySmidge + CGFloat(y.pointer - 1) * y.frame.height
+                            UIView.animate(withDuration: 0.30, animations: { [self] in
+                                tempView.frame.size.width = y.busSlotA.frame.width
+                                tempView.frame.size.height = y.busSlotB.frame.height
+                                tempView.backgroundColor = tempView.backgroundColor?.withAlphaComponent(1.0)
+                                if translation.x < busView.frame.midX
+                                {
+                                    tempView.center = CGPoint(x: y.busSlotA.center.x + busView.frame.minX + y.stacker.frame.minX, y: yMod)
+                                }
+                                else
+                                {
+                                    tempView.center = CGPoint(x: y.busSlotB.center.x + busView.frame.minX + y.stacker.frame.minX, y: yMod)
+                                }
+                            }, completion: { [self]_ in
+                                busView.reloadData()
+                                UIView.animate(withDuration: 0.3, animations: { [self] in
+                                    tempView.backgroundColor = tempView.backgroundColor?.withAlphaComponent(0.0)
+                                }, completion: { [self]_ in
+                                    tempView.isHidden = true
+                                    tempView.frame.origin = CGPoint(x: -75, y: -75)
+                                    tempView.frame.size = CGSize()
+                                })
+                            })
+                        }
+                        else
+                        {
+                            UIView.animate(withDuration: 0.20, animations: { [self] in
+                                tempView.frame.size = CGSize()
+                                tempView.center = translation
+                            }, completion: { [self]_ in
+                                tempView.isHidden = true
+                                tempView.frame.origin = CGPoint(x: -75, y: -75)
+                            })
                         }
                     }
                 }
             }
-            UIView.animate(withDuration: 0.20, animations: { [self] in
-                tempView.frame.size.width = 0
-                tempView.frame.size.height = 0
-                tempView.center = translation
-            }, completion: { [self]_ in
-                tempView.isHidden = true
-                tempView.frame.origin = CGPoint(x: -75, y: -75)
-            })
-            busView.reloadData()
+            else
+            {
+                UIView.animate(withDuration: 0.20, animations: { [self] in
+                    tempView.frame.size.width = 0
+                    tempView.frame.size.height = 0
+                    tempView.center = translation
+                }, completion: { [self]_ in
+                    tempView.isHidden = true
+                    tempView.frame.origin = CGPoint(x: -75, y: -75)
+                })
+            }
         }
     }
     @IBAction func addBus(_ sender: Any) 
