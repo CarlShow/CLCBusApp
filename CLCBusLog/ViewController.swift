@@ -16,6 +16,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     static var mid = 0
     static var busBuilder = [(busTendancy, String, busTendancy, String)]()
     var canUpdate = true
+    let password = "Testflight"
     override func viewDidLoad()
     {
         busView.layer.cornerRadius = 20
@@ -114,9 +115,28 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 } completion: { [self] _ in
                     canUpdate = true
                 }
-                fetch()
             }
+            fetch()
         }
+    }
+    @IBAction func developer(_ sender: Any) 
+    {
+        let alert = UIAlertController(title: "Edit Bus Lines", message: "In order to edit busses, enter a password here", preferredStyle: UIAlertController.Style.alert)
+        let passFail = UIAlertController(title: "Invalid Password", message: "Please try again", preferredStyle: UIAlertController.Style.alert)
+        passFail.addAction(UIAlertAction(title: "Okay", style: UIAlertAction.Style.default))
+        alert.addTextField()
+        alert.addAction(UIAlertAction(title: "Submit", style: UIAlertAction.Style.default, handler: { UIAlertAction in
+            if alert.textFields![0].text == self.password
+            {
+                self.performSegue(withIdentifier: "developer", sender: Any?.self)
+            }
+            else
+            {
+                self.present(passFail, animated: true)
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel))
+        self.present(alert, animated: true)
     }
     func fetch()
     {
@@ -209,17 +229,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 }
             }
             self.busView.reloadData()
-        }
-    }
-}
-extension UIView
-{
-    var absolutePosition: CGPoint
-    {
-        var compiledPosition = self.center
-        while true
-        {
-            
         }
     }
 }

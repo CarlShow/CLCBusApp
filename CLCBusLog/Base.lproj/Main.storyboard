@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -229,7 +229,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="tinted" title="Edit"/>
                                 <connections>
-                                    <segue destination="izG-YJ-wVx" kind="presentation" identifier="Secret! SHHH!" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="Pfn-ce-8fD"/>
+                                    <action selector="developer:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qS3-fh-fYx"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -253,6 +253,7 @@
                         <outlet property="busView" destination="CT7-u0-XFn" id="jAZ-o6-ZSm"/>
                         <outlet property="editButton" destination="oYc-V6-q7I" id="rvU-t1-ur8"/>
                         <outlet property="updateButton" destination="6Ap-YY-0Dp" id="Rng-Pa-mER"/>
+                        <segue destination="izG-YJ-wVx" kind="presentation" identifier="developer" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="uFW-kw-w6G"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -370,13 +371,13 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="XzV-OU-U2P">
-                                                    <rect key="frame" x="18" y="16" width="192" height="82"/>
+                                                    <rect key="frame" x="28" y="16" width="172" height="82"/>
                                                     <subviews>
                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="49r-CZ-XRL">
-                                                            <rect key="frame" x="0.0" y="0.0" width="94" height="82"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="82" height="82"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lZp-xa-E0a">
-                                                                    <rect key="frame" x="8" y="29" width="78" height="26"/>
+                                                                    <rect key="frame" x="8" y="29" width="66" height="26"/>
                                                                     <attributedString key="attributedText">
                                                                         <fragment content="Placeholder">
                                                                             <attributes>
@@ -393,17 +394,16 @@
                                                             <constraints>
                                                                 <constraint firstItem="lZp-xa-E0a" firstAttribute="top" secondItem="49r-CZ-XRL" secondAttribute="top" constant="29" id="3Td-yp-s1J"/>
                                                                 <constraint firstAttribute="bottom" secondItem="lZp-xa-E0a" secondAttribute="bottom" constant="27" id="6iT-dH-cz0"/>
-                                                                <constraint firstAttribute="width" constant="94" id="OYh-w1-Thd"/>
                                                                 <constraint firstItem="lZp-xa-E0a" firstAttribute="trailing" secondItem="49r-CZ-XRL" secondAttribute="trailingMargin" id="QjZ-13-mxf"/>
-                                                                <constraint firstAttribute="height" constant="90" id="Rym-Cf-LUn"/>
                                                                 <constraint firstItem="lZp-xa-E0a" firstAttribute="leading" secondItem="49r-CZ-XRL" secondAttribute="leadingMargin" id="dyo-sm-YJ6"/>
+                                                                <constraint firstAttribute="width" secondItem="49r-CZ-XRL" secondAttribute="height" multiplier="1:1" id="hza-n8-84l"/>
                                                             </constraints>
                                                         </view>
                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Rtz-0E-goe">
-                                                            <rect key="frame" x="102" y="0.0" width="90" height="82"/>
+                                                            <rect key="frame" x="90" y="0.0" width="82" height="82"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FCb-De-UDf">
-                                                                    <rect key="frame" x="8" y="29" width="74" height="29.333333333333329"/>
+                                                                    <rect key="frame" x="8" y="29" width="66" height="29.333333333333329"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="74" id="CVb-5O-K75"/>
                                                                     </constraints>
@@ -421,11 +421,10 @@
                                                             </subviews>
                                                             <color key="backgroundColor" systemColor="systemYellowColor"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="90" id="8Uy-Ir-6g0"/>
                                                                 <constraint firstItem="FCb-De-UDf" firstAttribute="trailing" secondItem="Rtz-0E-goe" secondAttribute="trailingMargin" id="PsZ-JL-Pga"/>
                                                                 <constraint firstItem="FCb-De-UDf" firstAttribute="leading" secondItem="Rtz-0E-goe" secondAttribute="leadingMargin" id="gmL-kO-mqf"/>
                                                                 <constraint firstItem="FCb-De-UDf" firstAttribute="top" secondItem="Rtz-0E-goe" secondAttribute="top" constant="29" id="paB-fU-3cM"/>
-                                                                <constraint firstAttribute="height" constant="90" id="qO7-gh-fpZ"/>
+                                                                <constraint firstAttribute="width" secondItem="Rtz-0E-goe" secondAttribute="height" multiplier="1:1" id="xE0-ck-q8T"/>
                                                             </constraints>
                                                         </view>
                                                     </subviews>
@@ -694,7 +693,7 @@
                     </connections>
                 </panGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="829.7709923664122" y="-2.1126760563380285"/>
+            <point key="canvasLocation" x="920" y="-2"/>
         </scene>
     </scenes>
     <resources>
@@ -702,10 +701,10 @@
         <image name="minus" catalog="system" width="128" height="26"/>
         <image name="plus" catalog="system" width="128" height="113"/>
         <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemYellowColor">
             <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
