@@ -91,8 +91,7 @@
 		4A9736D72AF1668A00879ABA = {
 			isa = PBXGroup;
 			children = (
-				4A40EFE52AF2B7810056FF63 /* customCell.swift */,
-				4A69B73D2B150F1F00027519 /* customBus.swift */,
+				4AA6D0A02B6C15D4003C0201 /* CoreData */,
 				4A9736E22AF1668A00879ABA /* CLCBusLog */,
 				4A9736FC2AF1668B00879ABA /* CLCBusLogTests */,
 				4A9737062AF1668B00879ABA /* CLCBusLogUITests */,
@@ -113,6 +112,8 @@
 		4A9736E22AF1668A00879ABA /* CLCBusLog */ = {
 			isa = PBXGroup;
 			children = (
+				4A40EFE52AF2B7810056FF63 /* customCell.swift */,
+				4A69B73D2B150F1F00027519 /* customBus.swift */,
 				4A9736E32AF1668A00879ABA /* AppDelegate.swift */,
 				4A9736E52AF1668A00879ABA /* SceneDelegate.swift */,
 				4A9736E72AF1668A00879ABA /* ViewController.swift */,
@@ -142,6 +143,13 @@
 				4A9737092AF1668B00879ABA /* CLCBusLogUITestsLaunchTests.swift */,
 			);
 			path = CLCBusLogUITests;
+			sourceTree = "<group>";
+		};
+		4AA6D0A02B6C15D4003C0201 /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -478,7 +486,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = CLC.CLCBusLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -507,7 +515,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = CLC.CLCBusLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

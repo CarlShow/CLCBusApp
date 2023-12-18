@@ -17,12 +17,47 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
     @IBOutlet weak var busView: UITableView!
     @IBOutlet weak var inserterView: UITableView!
     @IBOutlet weak var commitButton: UIButton!
-    var tenacity = (busTendancy.Null, "")
+    var focalCell = (UITableView(), -1, false)
     var busOptions = [String]()
     var target = -1
-    
+    var uncomittedChanges = false
     override func viewDidLoad()
     {
+        for x in ViewController.busBuilder
+        {
+            if x.0 == busTendancy.Present
+            {
+                var repeats = false
+                for y in busOptions
+                {
+                    if x.1 == y
+                    {
+                        repeats = true
+                        break
+                    }
+                }
+                if !repeats
+                {
+                    busOptions.append(x.1)
+                }
+            }
+            if x.2 == busTendancy.Present
+            {
+                var repeats = false
+                for y in busOptions
+                {
+                    if x.3 == y
+                    {
+                        repeats = true
+                        break
+                    }
+                }
+                if !repeats
+                {
+                    busOptions.append(x.3)
+                }
+            }
+        }
         busView.dataSource = self
         busView.delegate = self
         busView.layer.cornerRadius = 20
@@ -30,6 +65,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
         inserterView.delegate = self
         inserterView.layer.cornerRadius = 20
         commitButton.layer.cornerRadius = 20
+        commitButton.isUserInteractionEnabled = false
         tempView.layer.cornerRadius = 20
         stepir.layer.cornerRadius = 20
         stepir.maximumValue = Double(ViewController.busBuilder.count)
@@ -110,6 +146,8 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                     print("Catastrophic error! DIV1 OF DUPLE FAILED IN CELL INSTANCIATION")
                 }
                 cell.busNameB.text = cur.3
+                cell.snubView.frame.size = CGSize()
+                cell.snubView.layer.cornerRadius = 20
                 cell.tintColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.3019238946)
                 cell.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
                 cell.layer.cornerRadius = 20
@@ -144,6 +182,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
             target = indexPath.row - 2
         }
     }
+    // This segment designates how dragged elements behave
     @IBAction func didDrag(_ sender: UIPanGestureRecognizer)
     {
         let translation = sender.location(in: view)
@@ -151,6 +190,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
         {
             if inserterView.frame.contains(translation)
             {
+                // This if statement checks if the drag's start is within the 'inserterView'
                 var tries = 0
                 for x in inserterView.visibleCells
                 {
@@ -167,33 +207,78 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                             tempView.center = translation
                         })
                         tempView.backgroundColor = y.impliedBus.backgroundColor
+                        // designates the pointer within the 'inserterView'
                         if y.pointer == 0
                         {
-                            tenacity.0 = busTendancy.Null
-                            tenacity.1 = ""
+                            focalCell = (inserterView, 0, true)
                         }
                         else if y.pointer == 1
                         {
-                            tenacity.0 = busTendancy.Occupied
-                            tenacity.1 = ""
+                            focalCell = (inserterView, 1, true)
                         }
                         else
                         {
-                            tenacity.0 = busTendancy.Present
-                            tenacity.1 = busOptions[y.pointer-2]
+                            focalCell = (inserterView, y.pointer-2, false)
                         }
                         break
                     }
                     tries += 1
                 }
             }
+            else if busView.frame.contains(translation)
+            {
+                // This runs if the drag's start is within the 'busView'
+                for x in busView.visibleCells
+                {
+                    if let y = x as? customCell
+                    {
+                        let xCheck = translation.x - busView.frame.minX
+                        let yCheck = translation.y - busView.frame.minY + busView.bounds.minY
+                        if(x.frame.contains(CGPoint(x: xCheck, y: yCheck)) && x.reuseIdentifier == "busLane")
+                        {
+                            var target = 0
+                            tempView.isHidden = false
+                            tempView.center = translation
+                            UIView.animate(withDuration: 0.20, animations: { [self] in
+                                tempView.frame.size.width = 75
+                                tempView.frame.size.height = 75
+                                tempView.center = translation
+                            })
+                            target = y.pointer
+                            // Determines the cell's position in the array without the added cells within the tableview
+                            if target <= ViewController.mid
+                            {
+                                target -= 1
+                            }
+                            else
+                            {
+                                target -= 2
+                            }
+                            // determines the exact cell within the array
+                            if translation.x < busView.frame.midX
+                            {
+                                tempView.backgroundColor = y.busSlotA.backgroundColor
+                                focalCell = (busView, target, false)
+                            }
+                            else
+                            {
+                                tempView.backgroundColor = y.busSlotB.backgroundColor
+                                focalCell = (busView, target, true)
+                            }
+                        }
+                    }
+                }
+            }
         }
         else if sender.state.rawValue == 2
         {
+            // Simply, this elseif checks if the drag is still ongoing
             tempView.center = translation
         }
         else
         {
+            var bus = ViewController.busBuilder
+            // Once the drag ends, this chunk of code occurs
             if busView.frame.contains(translation)
             {
                 for x in busView.visibleCells
@@ -206,6 +291,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                         var target = (0, false)
                         if let y = x as? customCell
                         {
+                            // Determines the targeted cell's location in the array
                             if(translation.x < busView.frame.midX)
                             {
                                 target.0 = y.pointer
@@ -217,49 +303,137 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                                 target.1 = true
                             }
                             if target.0 <= ViewController.mid
-                            {
-                                target.0 -= 1
-                            }
+                            { target.0 -= 1 }
                             else
+                            { target.0 -= 2 }
+                            var z = customCell()
+                            if focalCell.0 == inserterView
                             {
-                                target.0 -= 2
-                            }
-                            if target.1
-                            {
-                                ViewController.busBuilder[target.0].2 = tenacity.0
-                                ViewController.busBuilder[target.0].3 = tenacity.1
-                            }
-                            else
-                            {
-                                ViewController.busBuilder[target.0].0 = tenacity.0
-                                ViewController.busBuilder[target.0].1 = tenacity.1
-                            }
-                            var ySmidge = 0.0
-                            if y.pointer > ViewController.mid
-                            {
-                                ySmidge = busView.frame.minY - busView.bounds.minY + y.stacker.frame.minY + 12
-                            }
-                            else
-                            {
-                                ySmidge = busView.frame.minY - busView.bounds.minY + y.stacker.frame.minY + y.busSlotA.frame.height
-                            }
-                            let yMod = ySmidge + CGFloat(y.pointer - 1) * y.frame.height
-                            UIView.animate(withDuration: 0.30, animations: { [self] in
-                                tempView.frame.size.width = y.busSlotA.frame.width
-                                tempView.frame.size.height = y.busSlotB.frame.height
-                                tempView.backgroundColor = tempView.backgroundColor?.withAlphaComponent(1.0)
-                                if translation.x < busView.frame.midX
+                                // Checks if the previous tableView was the 'inserterView'
+                                var temp = (busTendancy.Null, "")
+                                if focalCell.2
                                 {
-                                    tempView.center = CGPoint(x: y.busSlotA.center.x + busView.frame.minX + y.stacker.frame.minX, y: yMod)
+                                    if focalCell.1 == 0
+                                    { temp.0 = busTendancy.Null }
+                                    else
+                                    { temp.0 = busTendancy.Occupied }
                                 }
                                 else
                                 {
-                                    tempView.center = CGPoint(x: y.busSlotB.center.x + busView.frame.minX + y.stacker.frame.minX, y: yMod)
+                                    temp.0 = busTendancy.Present
+                                    temp.1 = busOptions[focalCell.1]
+                                }
+                                // Sets 'temp' to the 'busBuilder's location defined by 'target'
+                                if !target.1
+                                { 
+                                    bus[target.0].0 = temp.0
+                                    bus[target.0].1 = temp.1
+                                }
+                                else
+                                {
+                                    bus[target.0].2 = temp.0
+                                    bus[target.0].3 = temp.1
+                                }
+                            }
+                            else
+                            {
+                                // Preferably, this would be an 'else if'; however, it is impossible to *not* target a table view while doing this segment.
+                                // Checks if the previous tableView was the 'busView'
+                                var temp = (busTendancy.Null, "")
+                                print("(\(focalCell.1), \(focalCell.2)), \(target)")
+                                if !focalCell.2
+                                {
+                                    temp.0 = bus[focalCell.1].0
+                                    temp.1 = bus[focalCell.1].1
+                                }
+                                else
+                                {
+                                    temp.0 = bus[focalCell.1].2
+                                    temp.1 = bus[focalCell.1].3
+                                }
+                                print(temp)
+                                if !target.1
+                                {
+                                    let target2 = (bus[target.0].0, bus[target.0].1)
+                                    if !focalCell.2
+                                    {
+                                        bus[focalCell.1].0 = target2.0
+                                        bus[focalCell.1].1 = target2.1
+                                    }
+                                    else
+                                    {
+                                        bus[focalCell.1].2 = target2.0
+                                        bus[focalCell.1].3 = target2.1
+                                    }
+                                    bus[target.0].0 = temp.0
+                                    bus[target.0].1 = temp.1
+                                }
+                                else
+                                {
+                                    let target2 = (bus[target.0].2, bus[target.0].3)
+                                    if !focalCell.2
+                                    {
+                                        bus[focalCell.1].0 = target2.0
+                                        bus[focalCell.1].1 = target2.1
+                                    }
+                                    else
+                                    {
+                                        bus[focalCell.1].2 = target2.0
+                                        bus[focalCell.1].3 = target2.1
+                                    }
+                                    bus[target.0].2 = temp.0
+                                    bus[target.0].3 = temp.1
+                                }
+                                if focalCell.1 < ViewController.mid
+                                {
+                                    z = busView.cellForRow(at: IndexPath(row: focalCell.1 + 1, section: 0))! as! customCell
+                                }
+                                else
+                                {
+                                    z = busView.cellForRow(at: IndexPath(row: focalCell.1 + 2, section: 0))! as! customCell
+                                }
+                            }
+                            var ySmidge = 0.0
+                            let yConst = busView.frame.minY - busView.bounds.minY + y.stacker.frame.minY
+                            if y.pointer > ViewController.mid
+                            { ySmidge = yConst + 16 }
+                            else
+                            { ySmidge = yConst + y.busSlotA.frame.height + 4 }
+                            if focalCell.0 == busView
+                            {
+                                z.snubView.isHidden = false
+                                if !target.1
+                                { z.snubView.backgroundColor = y.busSlotA.backgroundColor?.withAlphaComponent(0.0) }
+                                else
+                                { z.snubView.backgroundColor = y.busSlotB.backgroundColor?.withAlphaComponent(0.0) }
+                                if !focalCell.2
+                                { z.snubView.center = z.busSlotA.center }
+                                else
+                                { z.snubView.center = z.busSlotB.center }
+                            }
+                            ViewController.busBuilder = bus
+                            let yMod = ySmidge + CGFloat(y.pointer - 1) * y.frame.height
+                            // From here on out is the animations for the components
+                            UIView.animate(withDuration: 0.60, animations: { [self] in
+                                tempView.frame = y.busSlotA.frame
+                                tempView.backgroundColor = tempView.backgroundColor?.withAlphaComponent(1.0)
+                                if translation.x < busView.frame.midX
+                                { tempView.center = CGPoint(x: y.busSlotA.center.x + busView.frame.minX + y.stacker.frame.minX, y: yMod) }
+                                else
+                                { tempView.center = CGPoint(x: y.busSlotB.center.x + busView.frame.minX + y.stacker.frame.minX, y: yMod) }
+                                if focalCell.0 == busView
+                                {
+                                    z.snubView.backgroundColor = z.snubView.backgroundColor?.withAlphaComponent(y.busSlotA.alpha)
+                                    z.snubView.frame = z.busSlotA.frame
+                                    if !focalCell.2
+                                    { z.snubView.center = CGPoint(x: z.busSlotA.frame.midX + z.stacker.frame.minX, y: z.busSlotA.frame.midY + z.stacker.frame.minY) }
+                                    else
+                                    { z.snubView.center = CGPoint(x: z.busSlotB.frame.midX + z.stacker.frame.minX, y: z.busSlotB.frame.midY + z.stacker.frame.minY) }
                                 }
                             }, completion: { [self]_ in
-                                busView.reloadData()
-                                UIView.animate(withDuration: 0.3, animations: { [self] in
+                                UIView.animate(withDuration: 0.4, animations: { [self] in
                                     tempView.backgroundColor = tempView.backgroundColor?.withAlphaComponent(0.0)
+                                    busView.reloadData()
                                 }, completion: { [self]_ in
                                     tempView.isHidden = true
                                     tempView.frame.origin = CGPoint(x: -75, y: -75)
@@ -279,6 +453,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                         }
                     }
                 }
+                changedSomething()
             }
             else
             {
@@ -291,17 +466,19 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                     tempView.frame.origin = CGPoint(x: -75, y: -75)
                 })
             }
+            focalCell = (UITableView(), -1, false)
         }
     }
-    @IBAction func addBus(_ sender: Any) 
+    @IBAction func addBus(_ sender: Any)
     {
         let alert = UIAlertController(title: "Add a bus:", message: "", preferredStyle: UIAlertController.Style.alert)
         alert.addTextField{
             (textField) in
             textField.placeholder = "Bus Number"
+            textField.keyboardType = .asciiCapableNumberPad
         }
         alert.addAction(UIAlertAction(title: "Add", style: UIAlertAction.Style.default, handler: { UIAlertAction in
-            self.busOptions.append(alert.textFields![0].text!)
+            self.busOptions.insert(alert.textFields![0].text!, at: 0)
             self.inserterView.reloadData()
         }))
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel))
@@ -332,6 +509,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
         ViewController.busBuilder.append((busTendancy.Null, "", busTendancy.Null, ""))
         busView.reloadData()
         stepir.maximumValue = Double(ViewController.busBuilder.count)
+        changedSomething()
     }
     @IBAction func removeRow(_ sender: Any) 
     {
@@ -350,14 +528,24 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
             alert.addAction(UIAlertAction(title: "Okay", style: UIAlertAction.Style.default))
             self.present(alert, animated: true)
         }
+        changedSomething()
         stepir.maximumValue = Double(ViewController.busBuilder.count)
     }
     @IBAction func stepMid(_ sender: UIStepper)
     {
         ViewController.mid = Int(sender.value)
         busView.reloadData()
+        changedSomething()
     }
-    @IBAction func commit(_ sender: Any) 
+    func changedSomething()
+    {
+        UIView.animate(withDuration: 0.5, animations: { [self] in
+            commitButton.backgroundColor = UIColor.systemBlue
+            busView.backgroundColor = #colorLiteral(red: 0.5013468862, green: 0.4937239885, blue: 0, alpha: 0.3008872335)
+        })
+        commitButton.isUserInteractionEnabled = true
+    }
+    @IBAction func commit(_ sender: Any)
     {
         let div = Firestore.firestore().collection("busLog").document("info")
         var listOne = [String]()
@@ -388,7 +576,11 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
             }
         }
         div.setData(["inf1" : listOne, "inf2" : listTwo, "num1" : nameOne, "num2" : nameTwo, "median" : ViewController.mid])
-        performSegue(withIdentifier: "coolio", sender: Any?.self)
+        UIView.animate(withDuration: 0.5, animations: { [self] in
+            commitButton.backgroundColor = #colorLiteral(red: 0.1420087814, green: 0.02641401254, blue: 0.02643535472, alpha: 0.2024890988)
+            busView.backgroundColor = #colorLiteral(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2025403912)
+        })
+        commitButton.isUserInteractionEnabled = false
     }
     @IBAction func returnToSender(_ sender: Any) 
     {

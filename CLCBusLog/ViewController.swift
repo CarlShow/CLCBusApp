@@ -4,10 +4,10 @@
 //
 //  Not Created by CARL SHOW on 10/31/23. >:)
 //
-
 import UIKit
 import FirebaseCore
 import FirebaseFirestore
+import CoreData
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var busView: UITableView!
     @IBOutlet weak var updateButton: UIButton!
@@ -15,10 +15,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var bumpView: UIView!
     static var mid = 0
     static var busBuilder = [(busTendancy, String, busTendancy, String)]()
+    // I really dislike that this needs to be static
+    static var isDev = false
+    var triedDev = false
     var canUpdate = true
     let password = "Testflight"
+    let signifier = UIDevice.current.identifierForVendor?.uuidString
     override func viewDidLoad()
     {
+        print(signifier!)
         busView.layer.cornerRadius = 20
         updateButton.layer.cornerRadius = 20
         editButton.layer.cornerRadius = 20
@@ -26,6 +31,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         busView.dataSource = self
         busView.delegate = self
         super.viewDidLoad()
+        if ViewController.isDev
+        {
+            triedDev = true
+        }
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
@@ -106,7 +115,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             updateButton.backgroundColor = #colorLiteral(red: 0.1420087814, green: 0.02641401254, blue: 0.02643535472, alpha: 0.2024890988)
             UIView.animate(withDuration: 10.0)
             { [self] in
-                updateButton.backgroundColor = #colorLiteral(red: 0.03013178147, green: 0.1812332869, blue: 0.3823508322, alpha: 0.3520772771)
+                updateButton.backgroundColor = #colorLiteral(red: 0.02908428758, green: 0.1822896004, blue: 0.382317543, alpha: 0.3520772771)
             } completion:
             { [self] _ in
                 UIView.animate(withDuration: 0.2)
@@ -119,24 +128,74 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             fetch()
         }
     }
-    @IBAction func developer(_ sender: Any) 
+    func devStep()
     {
-        let alert = UIAlertController(title: "Edit Bus Lines", message: "In order to edit busses, enter a password here", preferredStyle: UIAlertController.Style.alert)
-        let passFail = UIAlertController(title: "Invalid Password", message: "Please try again", preferredStyle: UIAlertController.Style.alert)
-        passFail.addAction(UIAlertAction(title: "Okay", style: UIAlertAction.Style.default))
-        alert.addTextField()
-        alert.addAction(UIAlertAction(title: "Submit", style: UIAlertAction.Style.default, handler: { UIAlertAction in
-            if alert.textFields![0].text == self.password
+        var exactID = false
+        let div = Firestore.firestore().collection("authedDevices").document("developers")
+        div.getDocument
+        { (doc, err) in
+            guard err == nil
+            else { print("failed to substantiate Firestore: \(String(describing: err))"); return }
+            if let val = doc?.data(), ((doc?.exists) != nil)
+            {
+                var idV = [String]()
+                for d in val
+                {
+                    idV.append(d.value as! String)
+                }
+                for id in idV
+                {
+                    if self.signifier == id
+                    {
+                        ViewController.isDev = true
+                        exactID = true
+                        break
+                    }
+                }
+            }
+            self.triedDev = true
+            if exactID
             {
                 self.performSegue(withIdentifier: "developer", sender: Any?.self)
             }
-            else
-            {
-                self.present(passFail, animated: true)
-            }
-        }))
-        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel))
-        self.present(alert, animated: true)
+        }
+    }
+    @IBAction func developer(_ sender: Any)
+    {
+        if !triedDev
+        {
+            devStep()
+        }
+        else if ViewController.isDev
+        {
+            self.performSegue(withIdentifier: "developer", sender: Any?.self)
+        }
+        else
+        {
+            let alert = UIAlertController(title: "Edit Bus Lines", message: "In order to edit busses, enter a password here", preferredStyle: UIAlertController.Style.alert)
+            let passFail = UIAlertController(title: "Invalid Password", message: "Please try again", preferredStyle: UIAlertController.Style.alert)
+            let passWin = UIAlertController(title: "Successfully Authendicated", message: "You now have access to Developer Mode", preferredStyle: UIAlertController.Style.alert)
+            passFail.addAction(UIAlertAction(title: "Okay", style: UIAlertAction.Style.default))
+            passWin.addAction(UIAlertAction(title: "Begin", style: UIAlertAction.Style.default, handler: { UIAlertAction in
+                self.performSegue(withIdentifier: "developer", sender: Any?.self)
+            }))
+            alert.addTextField()
+            alert.addAction(UIAlertAction(title: "Submit", style: UIAlertAction.Style.default, handler: { UIAlertAction in
+                if alert.textFields![0].text == self.password
+                {
+                    ViewController.isDev = true
+                    self.present(passWin, animated: true)
+                    let div = Firestore.firestore().collection("authedDevices").document("developers")
+                    div.setData([UIDevice.current.name : self.signifier!], merge: true)
+                }
+                else
+                {
+                    self.present(passFail, animated: true)
+                }
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel))
+            self.present(alert, animated: true)
+        }
     }
     func fetch()
     {
@@ -198,7 +257,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                     case "median":
                         ViewController.mid = d.value as! Int
                     case _:
-                        print("Alerta! Firestore is reading garbage data!")
+                        print("ALERT: Firestore is reading garbage data")
                     }
                     r += 1
                 }
@@ -230,5 +289,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
             self.busView.reloadData()
         }
+        
     }
 }
