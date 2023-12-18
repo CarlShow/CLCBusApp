@@ -23,6 +23,41 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
     
     override func viewDidLoad()
     {
+        for x in ViewController.busBuilder
+        {
+            if x.0 == busTendancy.Present
+            {
+                var repeats = false
+                for y in busOptions
+                {
+                    if x.1 == y
+                    {
+                        repeats = true
+                        break
+                    }
+                }
+                if !repeats
+                {
+                    busOptions.append(x.1)
+                }
+            }
+            if x.2 == busTendancy.Present
+            {
+                var repeats = false
+                for y in busOptions
+                {
+                    if x.3 == y
+                    {
+                        repeats = true
+                        break
+                    }
+                }
+                if !repeats
+                {
+                    busOptions.append(x.3)
+                }
+            }
+        }
         busView.dataSource = self
         busView.delegate = self
         busView.layer.cornerRadius = 20
@@ -187,6 +222,50 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                     tries += 1
                 }
             }
+            else if busView.frame.contains(translation)
+            {
+                for x in busView.visibleCells
+                {
+                    if let y = x as? customCell
+                    {
+                        let xCheck = translation.x - busView.frame.minX
+                        let yCheck = translation.y - busView.frame.minY + busView.bounds.minY
+                        if(x.frame.contains(CGPoint(x: xCheck, y: yCheck)) && x.reuseIdentifier == "busLane")
+                        {
+                            var target = 0
+                            tempView.isHidden = false
+                            tempView.center = translation
+                            UIView.animate(withDuration: 0.20, animations: { [self] in
+                                tempView.frame.size.width = 75
+                                tempView.frame.size.height = 75
+                                tempView.center = translation
+                            })
+                            target = y.pointer
+                            if target <= ViewController.mid
+                            {
+                                target -= 1
+                            }
+                            else
+                            {
+                                target -= 2
+                            }
+                            if translation.x < busView.frame.midX
+                            {
+                                tempView.backgroundColor = y.busSlotA.backgroundColor
+                                tenacity.0 = ViewController.busBuilder[target].0
+                                tenacity.1 =
+                                ViewController.busBuilder[target].1
+                            }
+                            else
+                            {
+                                tempView.backgroundColor = y.busSlotB.backgroundColor
+                                tenacity.0 = ViewController.busBuilder[target].2
+                                tenacity.1 = ViewController.busBuilder[target].3
+                            }
+                        }
+                    }
+                }
+            }
         }
         else if sender.state.rawValue == 2
         {
@@ -301,7 +380,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
             textField.placeholder = "Bus Number"
         }
         alert.addAction(UIAlertAction(title: "Add", style: UIAlertAction.Style.default, handler: { UIAlertAction in
-            self.busOptions.append(alert.textFields![0].text!)
+            self.busOptions.insert(alert.textFields![0].text!, at: 0)
             self.inserterView.reloadData()
         }))
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel))
