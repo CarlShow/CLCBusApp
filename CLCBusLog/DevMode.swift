@@ -67,7 +67,6 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
         commitButton.layer.cornerRadius = 20
         commitButton.isUserInteractionEnabled = false
         tempView.layer.cornerRadius = 20
-        stepir.layer.cornerRadius = 20
         stepir.maximumValue = Double(ViewController.busBuilder.count)
         stepir.value = Double(ViewController.mid)
     }
@@ -407,9 +406,9 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                                 else
                                 { z.snubView.backgroundColor = y.busSlotB.backgroundColor?.withAlphaComponent(0.0) }
                                 if !focalCell.2
-                                { z.snubView.center = z.busSlotA.center }
+                                { z.snubView.center = CGPoint(x: z.busSlotA.frame.midX + z.stacker.frame.minX, y: z.busSlotA.frame.midY + z.stacker.frame.minY) }
                                 else
-                                { z.snubView.center = z.busSlotB.center }
+                                { z.snubView.center = CGPoint(x: z.busSlotB.frame.midX + z.stacker.frame.minX, y: z.busSlotB.frame.midY + z.stacker.frame.minY) }
                             }
                             ViewController.busBuilder = bus
                             let yMod = ySmidge + CGFloat(y.pointer - 1) * y.frame.height
@@ -575,7 +574,7 @@ class DevMode: UIViewController, UITableViewDelegate, UITableViewDataSource
                 listTwo.append("")
             }
         }
-        div.setData(["inf1" : listOne, "inf2" : listTwo, "num1" : nameOne, "num2" : nameTwo, "median" : ViewController.mid])
+        div.setData(["inf1" : listOne, "inf2" : listTwo, "num1" : nameOne, "num2" : nameTwo, "median" : ViewController.mid, "signature" : UIDevice.current.identifierForVendor?.uuidString as Any])
         UIView.animate(withDuration: 0.5, animations: { [self] in
             commitButton.backgroundColor = #colorLiteral(red: 0.1420087814, green: 0.02641401254, blue: 0.02643535472, alpha: 0.2024890988)
             busView.backgroundColor = #colorLiteral(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2025403912)

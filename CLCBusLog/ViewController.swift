@@ -158,6 +158,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             {
                 self.performSegue(withIdentifier: "developer", sender: Any?.self)
             }
+            else
+            {
+                self.developer((Any).self)
+            }
         }
     }
     @IBAction func developer(_ sender: Any)
@@ -186,7 +190,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                     ViewController.isDev = true
                     self.present(passWin, animated: true)
                     let div = Firestore.firestore().collection("authedDevices").document("developers")
-                    div.setData([UIDevice.current.name : self.signifier!], merge: true)
+                    div.setData(["\(UIDevice.current.debugDescription)" : self.signifier!], merge: true)
                 }
                 else
                 {
